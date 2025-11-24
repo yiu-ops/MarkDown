@@ -1,0 +1,155 @@
+name: 자동 규정 업데이트
+
+on:
+  # 수동 실행 (GitHub Actions 탭에서 버튼 클릭)
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: '커밋 메시지 (선택)'
+        required: false
+        default: '규정 자동 업데이트'
+
+  # 매일 오전 9시 자동 실행 (KST 기준)
+  schedule:
+    - cron: '0 0 * * *'  # UTC 0시 = KST 9시
+
+  # regulations_source에 .docx 파일이 직접 푸시되면 실행
+  push:
+    paths:
+      - '.github/regulations_upload/*.docx'
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 히스토리 가져오기
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Python 설정
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Pandoc 설치
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: regulations_source/new 폴더 확인
+        id: check_files
+        run: |
+          if [ -d "regulations_source/new" ] && [ "$(ls -A regulations_source/new/*.docx 2>/dev/null)" ]; then
+            echo "has_files=true" >> $GITHUB_OUTPUT
+            echo "✅ 처리할 DOCX 파일이 있습니다."
+            ls -la regulations_source/new/
+          else
+            echo "has_files=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ 처리할 DOCX 파일이 없습니다."
+          fi
+
+      - name: regulations.json 확인 및 생성
+        run: |
+          if [ ! -f "regulations.json" ]; then
+            echo "regulations.json이 없습니다. 생성 중..."
+            python3 << 'EOF'
+import os
+import json
+import re
+
+def extract_title_from_md(filepath):
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            first_line = f.readline().strip()
+            title = re.sub(r'^#+\s*', '', first_line)
+            return title
+    except:
+        return None
+
+def normalize_title(title):
+    normalized = re.sub(r'[\s\.\·\-]', '', title)
+    return normalized.lower()
+
+regulations = []
+for root, dirs, files in os.walk('regulations'):
+    for file in files:
+        if file.endswith('.md'):
+            filepath = os.path.join(root, file)
+            code = file.replace('.md', '')
+            title = extract_title_from_md(filepath)
+
+            if title:
+                category = root.replace('regulations/', '')
+                regulation = {
+                    "code": code,
+                    "title": title,
+                    "title_normalized": normalize_title(title),
+                    "category": category,
+                    "path": filepath,
+                    "filename": file
+                }
+                regulations.append(regulation)
+
+output = {
+    "version": "1.0",
+    "last_updated": "$(date +%Y-%m-%d)",
+    "total_regulations": len(regulations),
+    "regulations": sorted(regulations, key=lambda x: x['code'])
+}
+
+with open('regulations.json', 'w', encoding='utf-8') as f:
+    json.dump(output, f, ensure_ascii=False, indent=2)
+
+print(f"regulations.json 생성 완료: {len(regulations)}개 규정")
+EOF
+          fi
+
+      - name: 규정 일괄 업데이트
+        if: steps.check_files.outputs.has_files == 'true'
+        run: |
+          python3 scripts/batch_smart_update.py
+
+      - name: 변경사항 확인
+        id: check_changes
+        run: |
+          if [ -n "$(git status --porcelain regulations/)" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ 변경된 규정이 있습니다."
+            git status --short regulations/
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ 변경된 규정이 없습니다."
+          fi
+
+      - name: Git 설정
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Actions Bot"
+
+      - name: 변경사항 커밋 및 푸시
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git add regulations/
+          git add regulations.json 2>/dev/null || true
+
+          COMMIT_MSG="${{ github.event.inputs.commit_message }}"
+          if [ -z "$COMMIT_MSG" ]; then
+            COMMIT_MSG="자동 규정 업데이트 - $(date +%Y-%m-%d)"
+          fi
+
+          git commit -m "$COMMIT_MSG"
+          git push
+
+      - name: 작업 완료
+        run: |
+          echo "=========================================="
+          echo "✅ 자동 규정 업데이트 완료"
+          echo "=========================================="
+          echo ""
+          echo "처리 결과:"
+          echo "  - 변경된 파일: ${{ steps.check_changes.outputs.has_changes == 'true' && '있음' || '없음' }}"
+          echo ""

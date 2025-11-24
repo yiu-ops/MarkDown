@@ -1,7 +1,10 @@
 # 원본 파일 (용량 절약을 위해 Git에서 제외)
 regulations_source/hwp/
 regulations_source/docx/
-regulations_source/new/
+
+# new 폴더의 DOCX 파일은 처리 후 history로 이동되므로 제외
+regulations_source/new/*.docx
+regulations_source/new/*.hwp
 
 # 백업 파일
 *.backup.*
@@ -12,9 +15,9 @@ temp.docx
 *.tmp
 /tmp/
 
-# 한글 작업 파일 (필요시 주석 처리)
-# *.hwp
-# *.~hwp
+# 한글 작업 파일
+*.hwp
+*.~hwp
 
 # Python
 __pycache__/
@@ -29,3 +32,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# output.md와 aaa.docx는 archive 폴더로 이동 예정
+# 아직은 제외하지 않음

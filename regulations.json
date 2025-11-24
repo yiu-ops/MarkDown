@@ -1,0 +1,287 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-01-24",
+  "total_regulations": 35,
+  "regulations": [
+    {
+      "code": "1-0-1",
+      "title": "학교법인 단호학원 정관",
+      "title_normalized": "학교법인단호학원정관",
+      "category": "1-학교법인",
+      "path": "regulations/1-학교법인/1-0-1.md",
+      "filename": "1-0-1.md"
+    },
+    {
+      "code": "3-1-1",
+      "title": "직제규정",
+      "title_normalized": "직제규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-1.md",
+      "filename": "3-1-1.md"
+    },
+    {
+      "code": "3-1-10",
+      "title": "교직원징계규정",
+      "title_normalized": "교직원징계규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-10.md",
+      "filename": "3-1-10.md"
+    },
+    {
+      "code": "3-1-2",
+      "title": "사무분장규정",
+      "title_normalized": "사무분장규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-2.md",
+      "filename": "3-1-2.md"
+    },
+    {
+      "code": "3-1-3",
+      "title": "복무규정",
+      "title_normalized": "복무규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-3.md",
+      "filename": "3-1-3.md"
+    },
+    {
+      "code": "3-1-4",
+      "title": "위임전결규정",
+      "title_normalized": "위임전결규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-4.md",
+      "filename": "3-1-4.md"
+    },
+    {
+      "code": "3-1-40",
+      "title": "공익신고에 관한 규정",
+      "title_normalized": "공익신고에관한규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-40.md",
+      "filename": "3-1-40.md"
+    },
+    {
+      "code": "3-1-41",
+      "title": "주차관리 규정",
+      "title_normalized": "주차관리규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-41.md",
+      "filename": "3-1-41.md"
+    },
+    {
+      "code": "3-1-42",
+      "title": "게시물관리규정",
+      "title_normalized": "게시물관리규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-42.md",
+      "filename": "3-1-42.md"
+    },
+    {
+      "code": "3-1-43",
+      "title": "용인대학교 교직원 행동강령",
+      "title_normalized": "용인대학교교직원행동강령",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-43.md",
+      "filename": "3-1-43.md"
+    },
+    {
+      "code": "3-1-44",
+      "title": "기록물관리규정",
+      "title_normalized": "기록물관리규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-44.md",
+      "filename": "3-1-44.md"
+    },
+    {
+      "code": "3-1-47",
+      "title": "제규정관리규정",
+      "title_normalized": "제규정관리규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-47.md",
+      "filename": "3-1-47.md"
+    },
+    {
+      "code": "3-1-7",
+      "title": "교직원 국내․외 여행 규정",
+      "title_normalized": "교직원국내․외여행규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-7.md",
+      "filename": "3-1-7.md"
+    },
+    {
+      "code": "3-1-9",
+      "title": "교직원포상규정",
+      "title_normalized": "교직원포상규정",
+      "category": "3-학사행정/1-일반행정",
+      "path": "regulations/3-학사행정/1-일반행정/3-1-9.md",
+      "filename": "3-1-9.md"
+    },
+    {
+      "code": "3-2-11",
+      "title": "보수지급규정",
+      "title_normalized": "보수지급규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-11.md",
+      "filename": "3-2-11.md"
+    },
+    {
+      "code": "3-2-12",
+      "title": "여비지급규정",
+      "title_normalized": "여비지급규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-12.md",
+      "filename": "3-2-12.md"
+    },
+    {
+      "code": "3-2-14",
+      "title": "퇴직금지급규정",
+      "title_normalized": "퇴직금지급규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-14.md",
+      "filename": "3-2-14.md"
+    },
+    {
+      "code": "3-2-15",
+      "title": "교․직원 명예퇴직수당 지급에 관한 규정",
+      "title_normalized": "교․직원명예퇴직수당지급에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-15.md",
+      "filename": "3-2-15.md"
+    },
+    {
+      "code": "3-2-16",
+      "title": "외국인강의전담교원임용규정",
+      "title_normalized": "외국인강의전담교원임용규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-16.md",
+      "filename": "3-2-16.md"
+    },
+    {
+      "code": "3-2-17",
+      "title": "명예교수에 관한 규정",
+      "title_normalized": "명예교수에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-17.md",
+      "filename": "3-2-17.md"
+    },
+    {
+      "code": "3-2-18",
+      "title": "연구원에 관한 규정",
+      "title_normalized": "연구원에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-18.md",
+      "filename": "3-2-18.md"
+    },
+    {
+      "code": "3-2-19",
+      "title": "석좌교수규정",
+      "title_normalized": "석좌교수규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-19.md",
+      "filename": "3-2-19.md"
+    },
+    {
+      "code": "3-2-2",
+      "title": "교원업적평가 및 관리규정",
+      "title_normalized": "교원업적평가및관리규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-2.md",
+      "filename": "3-2-2.md"
+    },
+    {
+      "code": "3-2-20",
+      "title": "비정년트랙전임교원규정",
+      "title_normalized": "비정년트랙전임교원규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-20.md",
+      "filename": "3-2-20.md"
+    },
+    {
+      "code": "3-2-21",
+      "title": "교원연구년제에 관한 규정",
+      "title_normalized": "교원연구년제에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-21.md",
+      "filename": "3-2-21.md"
+    },
+    {
+      "code": "3-2-22",
+      "title": "전임교원경력경쟁채용 등 시행세칙",
+      "title_normalized": "전임교원경력경쟁채용등시행세칙",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-22.md",
+      "filename": "3-2-22.md"
+    },
+    {
+      "code": "3-2-23",
+      "title": "교원연봉제규정",
+      "title_normalized": "교원연봉제규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-23.md",
+      "filename": "3-2-23.md"
+    },
+    {
+      "code": "3-2-25",
+      "title": "초빙교원에 관한 규정",
+      "title_normalized": "초빙교원에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-25.md",
+      "filename": "3-2-25.md"
+    },
+    {
+      "code": "3-2-26",
+      "title": "산학협력중점교원에 관한 규정",
+      "title_normalized": "산학협력중점교원에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-26.md",
+      "filename": "3-2-26.md"
+    },
+    {
+      "code": "3-2-28",
+      "title": "강사에 관한 규정",
+      "title_normalized": "강사에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-28.md",
+      "filename": "3-2-28.md"
+    },
+    {
+      "code": "3-2-6",
+      "title": "조교임용규정",
+      "title_normalized": "조교임용규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-6.md",
+      "filename": "3-2-6.md"
+    },
+    {
+      "code": "3-2-7",
+      "title": "객원교수 및 특임교수에 관한 규정",
+      "title_normalized": "객원교수및특임교수에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-7.md",
+      "filename": "3-2-7.md"
+    },
+    {
+      "code": "3-2-8",
+      "title": "겸임교원에 관한 규정",
+      "title_normalized": "겸임교원에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-8.md",
+      "filename": "3-2-8.md"
+    },
+    {
+      "code": "3-2-9",
+      "title": "강의전담교원에 관한 규정",
+      "title_normalized": "강의전담교원에관한규정",
+      "category": "3-학사행정/2-인사보수행정",
+      "path": "regulations/3-학사행정/2-인사보수행정/3-2-9.md",
+      "filename": "3-2-9.md"
+    },
+    {
+      "code": "3-3-5",
+      "title": "학술연구비관리규정",
+      "title_normalized": "학술연구비관리규정",
+      "category": "3-학사행정/3-교무행정",
+      "path": "regulations/3-학사행정/3-교무행정/3-3-5.md",
+      "filename": "3-3-5.md"
+    }
+  ]
+}
