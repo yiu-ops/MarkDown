@@ -35,3 +35,10 @@ Thumbs.db
 
 # output.md와 aaa.docx는 archive 폴더로 이동 예정
 # 아직은 제외하지 않음
+
+# Docusaurus
+website/node_modules/
+website/.docusaurus/
+website/build/
+website/.cache/
+website/yarn.lock
