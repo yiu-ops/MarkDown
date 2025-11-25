@@ -1,0 +1,10 @@
+# 이 폴더는 새로운 규정 DOCX 파일을 업로드하는 곳입니다.
+
+파일을 이 폴더에 추가하고 커밋하면:
+1. GitHub Actions가 자동으로 실행됩니다
+2. DOCX → MD 변환
+3. 해당 규정 파일 자동 업데이트
+4. Git에 자동 커밋
+
+또는 수동으로 처리:
+    python3 scripts/batch_smart_update.py
