@@ -1,58 +1,47 @@
-# 용인대학교 규정집
-
-용인대학교의 모든 제규정을 한 곳에서 쉽게 찾아보세요.
-
-## 🔍 빠른 검색
-
-상단의 검색창을 이용하여 원하는 규정을 즉시 찾을 수 있습니다.
-
-## 📚 규정 체계
-
-### 제1편 학교법인
-학교법인 단호학원 정관 및 시행세칙
-
-### 제2편 학칙
-용인대학교 학칙 및 대학원 학칙
-
-### 제3편 학사행정
-- **제1장 일반행정**: 직제, 사무분장, 복무, 문서 등
-- **제2장 인사보수행정**: 교원/직원 인사, 보수, 복지 등
-- **제3장 교무행정**: 학사, 교육과정, 연구 등
-- **제4장 학생행정**: 학생회, 장학금, 학생지원 등
-- **제5장 대학원**: 대학원 학칙 시행세칙 및 학위 수여
-
-### 제4편 부속기관, 부설기관
-- **제1장 부속기관**: 도서관, 박물관, 생활관 등
-- **제2장 부설연구소**: 각종 연구소 운영 규정
-- **제3장 부설기관**: 연수원, 교육원 등
-
-### 제5편 위원회
-각종 위원회 설치 및 운영 규정
-
-### 제6편 기타
-기성회, 상조회 등
-
-## 📖 사용 방법
-
-### 1. 사이드바에서 탐색
-왼쪽 사이드바에서 편/장/규정을 선택하여 탐색할 수 있습니다.
-
-### 2. 검색 기능 사용
-상단 검색창에 키워드를 입력하면 관련 규정을 즉시 찾을 수 있습니다.
-
-### 3. PDF 다운로드
-각 규정 페이지 하단에서 PDF로 다운로드할 수 있습니다.
-
-## 📅 최근 개정 규정
-
-최근 개정된 규정은 각 페이지에 개정일이 표시됩니다.
-
-## ℹ️ 안내
-
-- 본 규정집은 공식 규정을 Markdown 형식으로 변환한 것입니다.
-- 최신 규정은 정기적으로 업데이트됩니다.
-- 문의사항은 해당 부서로 연락주시기 바랍니다.
-
+---
+sidebar_position: 1
 ---
 
-**마지막 업데이트**: 2025-01-24
+# Tutorial Intro
+
+Let's discover **Docusaurus in less than 5 minutes**.
+
+## Getting Started
+
+Get started by **creating a new site**.
+
+Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+
+### What you'll need
+
+- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
+  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+
+## Generate a new site
+
+Generate a new Docusaurus site using the **classic template**.
+
+The classic template will automatically be added to your project after you run the command:
+
+```bash
+npm init docusaurus@latest my-website classic
+```
+
+You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+
+The command also installs all necessary dependencies you need to run Docusaurus.
+
+## Start your site
+
+Run the development server:
+
+```bash
+cd my-website
+npm run start
+```
+
+The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+
+The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+
+Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
