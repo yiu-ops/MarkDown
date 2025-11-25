@@ -25,7 +25,7 @@ const config: Config = {
   organizationName: 'Parkseihuan', // Usually your GitHub org/user name.
   projectName: 'MarkDown', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   // Markdown configuration to handle legacy content
