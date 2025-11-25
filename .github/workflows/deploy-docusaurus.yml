@@ -32,24 +32,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: npm
-          cache-dependency-path: website/package-lock.json
 
       - name: regulations/ → website/docs/ 동기화
         run: |
           chmod +x scripts/sync-regulations.sh
-          ./scripts/sync-regulations.sh
-
-      - name: intro.md 복사
-        run: |
-          if [ ! -f "website/docs/intro.md" ]; then
-            echo "intro.md를 복사합니다..."
-            cp -f website/docs.backup/intro.md website/docs/intro.md 2>/dev/null || echo "# 용인대학교 규정집" > website/docs/intro.md
-          fi
+          bash scripts/sync-regulations.sh
 
       - name: 사이드바 자동 생성
         run: |
-          chmod +x scripts/generate-sidebar.js
           node scripts/generate-sidebar.js
 
       - name: 의존성 설치
