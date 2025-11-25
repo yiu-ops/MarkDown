@@ -51,6 +51,8 @@ jobs:
         run: |
           cd website
           npm run build
+          # .nojekyll 파일 추가 (Jekyll 비활성화)
+          touch build/.nojekyll
 
       - name: GitHub Pages 설정
         uses: actions/configure-pages@v4
