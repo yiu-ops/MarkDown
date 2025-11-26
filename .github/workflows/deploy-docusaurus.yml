@@ -31,7 +31,7 @@ jobs:
       - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: regulations/ → website/docs/ 동기화
         run: |
