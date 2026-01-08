@@ -651,11 +651,12 @@ jobs:
 
 ## 🎯 최종 결정
 
-어떤 옵션을 선택하시겠습니까?
+**Option 3: MkDocs Material**을 선택했습니다.
 
-1. **Option 1**: Docusaurus 완전 버전 (웹 업로드 포함) - **추천!**
-2. **Option 2**: Docusaurus 기본 버전 (업로드 나중에)
-3. **Option 3**: MkDocs Material (빠르고 간단)
-4. **Option 4**: Docsify (최고속)
+### 이유
+1. **빠른 구축**: 복잡한 설정 없이 즉시 배포 가능
+2. **유지보수 용이**: Python 기반으로 관리가 쉬움
+3. **깔끔한 디자인**: Material Design으로 가독성 확보
+4. **비용 효율**: GitHub Pages 무료 호스팅 활용
 
-선택해주시면 바로 구현 시작하겠습니다!
+이 로드맵에 따라 MkDocs Material로 규정집 웹사이트를 구축합니다.

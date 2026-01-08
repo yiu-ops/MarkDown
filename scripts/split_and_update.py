@@ -98,6 +98,14 @@ def sanitize_for_mdx(content):
     # style="width: 9%" -> ""
     content = re.sub(r' style="[^"]*"', '', content)
     
+    # Fix MDX nesting issues: Ensure block tags inside table cells have newlines
+    # </td> after </p> or </blockquote> should be on new line
+    content = re.sub(r'(</p>|</blockquote>)</td>', r'\1\n</td>', content)
+    
+    # <td> before <p> or <blockquote> should be on new line
+    # Handle <td> with attributes (e.g. <td rowspan="2">)
+    content = re.sub(r'(<td[^>]*>)(<p>|<blockquote>)', r'\1\n\2', content)
+    
     # Replace <br> with <br /> if needed (Pandoc usually does this, but just in case)
     # But be careful not to double replace
     

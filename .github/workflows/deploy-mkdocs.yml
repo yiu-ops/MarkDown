@@ -1,0 +1,36 @@
+name: MkDocs 빌드 및 배포
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'regulations/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/deploy-mkdocs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: MkDocs 및 테마 설치
+        run: |
+          pip install mkdocs-material mkdocs-awesome-pages-plugin
+
+      - name: 규정 파일 동기화
+        shell: pwsh
+        run: ./scripts/sync-regulations.ps1
+
+      - name: MkDocs 빌드 및 배포
+        run: mkdocs gh-deploy --force
