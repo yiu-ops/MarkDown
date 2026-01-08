@@ -41,7 +41,7 @@ if (-not (Get-Command pandoc -ErrorAction SilentlyContinue)) {
 
 try {
     # Run pandoc
-    pandoc -f docx -t markdown "$($latestDocx.FullName)" -o "$outputMd"
+    pandoc -f docx -t gfm "$($latestDocx.FullName)" -o "$outputMd"
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "    Conversion successful: $outputMd" -ForegroundColor Green

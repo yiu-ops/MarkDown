@@ -92,6 +92,17 @@ def generate_diff_html(old_lines, new_lines, title):
     diff = difflib.HtmlDiff().make_table(old_lines, new_lines, context=True, numlines=3)
     return f"<h3>{title}</h3>\n{diff}<br>"
 
+def sanitize_for_mdx(content):
+    """Sanitize content for Docusaurus MDX compatibility."""
+    # Remove style attributes from HTML tags (causes MDX errors)
+    # style="width: 9%" -> ""
+    content = re.sub(r' style="[^"]*"', '', content)
+    
+    # Replace <br> with <br /> if needed (Pandoc usually does this, but just in case)
+    # But be careful not to double replace
+    
+    return content
+
 def update_files(split_result, regulations, project_root):
     """Update files and generate report."""
     updated_count = 0
@@ -120,13 +131,20 @@ def update_files(split_result, regulations, project_root):
         # Compare content
         # Join and split to ensure consistent newline handling
         new_content_str = '\n'.join(new_lines)
+        
+        # Sanitize for MDX
+        new_content_str = sanitize_for_mdx(new_content_str)
+        
+        # Re-split to lines for diffing (after sanitization)
+        new_lines_sanitized = new_content_str.splitlines()
+        
         old_content_str = '\n'.join(old_lines)
         
         if new_content_str.strip() != old_content_str.strip():
             print(f"  [UPDATE] {reg_info['title']} ({code})")
             
             # Generate diff
-            diff_html = generate_diff_html(old_lines, new_lines, f"{reg_info['title']} ({code})")
+            diff_html = generate_diff_html(old_lines, new_lines_sanitized, f"{reg_info['title']} ({code})")
             diff_report.append(diff_html)
             
             # Backup existing file
