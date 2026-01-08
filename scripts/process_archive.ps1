@@ -68,14 +68,41 @@ catch {
 }
 
 # 4. Check for report
-$reportPath = Join-Path $projectRoot "update_report.html"
-if (Test-Path $reportPath) {
-    Write-Host "`n[4] Update Report Generated!" -ForegroundColor Green
-    Write-Host "    Opening report..." -ForegroundColor White
-    Invoke-Item "$reportPath"
+$reportsDir = Join-Path $projectRoot "reports"
+
+if (Test-Path $reportsDir) {
+    $latestReport = Get-ChildItem -Path $reportsDir -Filter "update_report_*.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+}
+else {
+    $latestReport = $null
+}
+
+if ($latestReport) {
+    # Check if the report was created in the last minute (to ensure it's from this run)
+    if ($latestReport.LastWriteTime -gt (Get-Date).AddMinutes(-1)) {
+        Write-Host "`n[4] Update Report Generated!" -ForegroundColor Green
+        Write-Host "    Report: $($latestReport.Name)" -ForegroundColor White
+        Write-Host "    Opening report..." -ForegroundColor White
+        Invoke-Item "$($latestReport.FullName)"
+        
+        # 5. Show notification
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.MessageBox]::Show("Regulation update completed!`n`nChanges detected. Opening report.", "Regulation System", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    }
+    else {
+        Write-Host "`n[4] No changes detected (no new report generated)." -ForegroundColor Gray
+        
+        # 5. Show notification
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.MessageBox]::Show("Processing completed.`n`nNo changes detected.", "Regulation System", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    }
 }
 else {
     Write-Host "`n[4] No changes detected (no report generated)." -ForegroundColor Gray
+    
+    # 5. Show notification
+    Add-Type -AssemblyName System.Windows.Forms
+    [System.Windows.Forms.MessageBox]::Show("Processing completed.`n`nNo changes detected.", "Regulation System", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
 }
 
 Write-Host "`nDone." -ForegroundColor Cyan

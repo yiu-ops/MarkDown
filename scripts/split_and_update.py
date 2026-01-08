@@ -193,7 +193,14 @@ def main():
     
     # Save diff report if there are updates
     if diff_report:
-        report_path = os.path.join(project_root, 'update_report.html')
+        # Create reports directory
+        reports_dir = os.path.join(project_root, 'reports')
+        os.makedirs(reports_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        report_filename = f'update_report_{timestamp}.html'
+        report_path = os.path.join(reports_dir, report_filename)
+        
         html_content = """
         <html>
         <head>
