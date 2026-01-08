@@ -56,55 +56,55 @@ jobs:
           if [ ! -f "regulations.json" ]; then
             echo "regulations.json이 없습니다. 생성 중..."
             python3 << 'EOF'
-import os
-import json
-import re
+          import os
+          import json
+          import re
 
-def extract_title_from_md(filepath):
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            title = re.sub(r'^#+\s*', '', first_line)
-            return title
-    except:
-        return None
+          def extract_title_from_md(filepath):
+              try:
+                  with open(filepath, 'r', encoding='utf-8') as f:
+                      first_line = f.readline().strip()
+                      title = re.sub(r'^#+\s*', '', first_line)
+                      return title
+              except:
+                  return None
 
-def normalize_title(title):
-    normalized = re.sub(r'[\s\.\·\-]', '', title)
-    return normalized.lower()
+          def normalize_title(title):
+              normalized = re.sub(r'[\s\.\·\-]', '', title)
+              return normalized.lower()
 
-regulations = []
-for root, dirs, files in os.walk('regulations'):
-    for file in files:
-        if file.endswith('.md'):
-            filepath = os.path.join(root, file)
-            code = file.replace('.md', '')
-            title = extract_title_from_md(filepath)
+          regulations = []
+          for root, dirs, files in os.walk('regulations'):
+              for file in files:
+                  if file.endswith('.md'):
+                      filepath = os.path.join(root, file)
+                      code = file.replace('.md', '')
+                      title = extract_title_from_md(filepath)
 
-            if title:
-                category = root.replace('regulations/', '')
-                regulation = {
-                    "code": code,
-                    "title": title,
-                    "title_normalized": normalize_title(title),
-                    "category": category,
-                    "path": filepath,
-                    "filename": file
-                }
-                regulations.append(regulation)
+                      if title:
+                          category = root.replace('regulations/', '')
+                          regulation = {
+                              "code": code,
+                              "title": title,
+                              "title_normalized": normalize_title(title),
+                              "category": category,
+                              "path": filepath,
+                              "filename": file
+                          }
+                          regulations.append(regulation)
 
-output = {
-    "version": "1.0",
-    "last_updated": "$(date +%Y-%m-%d)",
-    "total_regulations": len(regulations),
-    "regulations": sorted(regulations, key=lambda x: x['code'])
-}
+          output = {
+              "version": "1.0",
+              "last_updated": "$(date +%Y-%m-%d)",
+              "total_regulations": len(regulations),
+              "regulations": sorted(regulations, key=lambda x: x['code'])
+          }
 
-with open('regulations.json', 'w', encoding='utf-8') as f:
-    json.dump(output, f, ensure_ascii=False, indent=2)
+          with open('regulations.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, ensure_ascii=False, indent=2)
 
-print(f"regulations.json 생성 완료: {len(regulations)}개 규정")
-EOF
+          print(f"regulations.json 생성 완료: {len(regulations)}개 규정")
+          EOF
           fi
 
       - name: 규정 일괄 업데이트
