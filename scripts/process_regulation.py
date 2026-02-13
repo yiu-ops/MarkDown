@@ -3,12 +3,13 @@
 통합 규정 처리 스크립트
 
 기능:
-- DOCX 파일을 자동으로 분석
+- PDF/DOCX 파일을 자동으로 분석
 - 단일 규정인지 통합 문서(여러 규정)인지 자동 판단
 - 적절한 처리 스크립트 자동 호출
 
 사용법:
-    python scripts/process_regulation.py <DOCX_FILE_PATH>
+    python scripts/process_regulation.py <FILE_PATH>
+    python scripts/process_regulation.py regulations_source/new/규정집.pdf
     python scripts/process_regulation.py regulations_source/new/규정집.docx
 """
 
@@ -40,9 +41,21 @@ def normalize_title(title):
     """제목 정규화 (공백 제거, 소문자 변환)"""
     return re.sub(r'[\s\.\·\-]', '', title).lower()
 
-def convert_docx_to_md(docx_path):
-    """DOCX를 임시 MD 파일로 변환"""
-    print(f"📄 DOCX를 Markdown으로 변환 중: {docx_path}")
+def convert_to_md(input_path):
+    """PDF/DOCX를 임시 MD 파일로 변환"""
+    # 파일 확장자 확인
+    ext = os.path.splitext(input_path)[1].lower()
+    
+    if ext == '.pdf':
+        print(f"📄 PDF를 Markdown으로 변환 중: {input_path}")
+        input_format = 'pdf'
+    elif ext == '.docx':
+        print(f"📄 DOCX를 Markdown으로 변환 중: {input_path}")
+        input_format = 'docx'
+    else:
+        print(f"❌ 지원하지 않는 파일 형식: {ext}")
+        print("   지원 형식: .pdf, .docx")
+        sys.exit(1)
     
     # 임시 MD 파일 생성
     temp_md = tempfile.NamedTemporaryFile(mode='w', suffix='.md', 
@@ -52,7 +65,7 @@ def convert_docx_to_md(docx_path):
     
     try:
         result = subprocess.run(
-            ['pandoc', '-f', 'docx', '-t', 'markdown', docx_path, '-o', temp_md_path],
+            ['pandoc', '-f', input_format, '-t', 'markdown', input_path, '-o', temp_md_path],
             capture_output=True,
             text=True,
             encoding='utf-8'
@@ -103,7 +116,7 @@ def analyze_md_content(md_path, regulations):
     
     return len(found_titles)
 
-def process_single_regulation(docx_path):
+def process_single_regulation(input_path):
     """단일 규정 처리 (smart_update.py 호출)"""
     print("\n✅ 단일 규정으로 판단 → smart_update.py 실행")
     print("=" * 60)
@@ -111,19 +124,19 @@ def process_single_regulation(docx_path):
     smart_update_script = project_root / 'scripts' / 'smart_update.py'
     
     result = subprocess.run(
-        [sys.executable, str(smart_update_script), docx_path],
+        [sys.executable, str(smart_update_script), input_path],
         cwd=project_root
     )
     
     return result.returncode
 
-def process_multiple_regulations(docx_path):
+def process_multiple_regulations(input_path):
     """통합 문서 처리 (split_and_update.py 호출)"""
     print("\n✅ 통합 문서(여러 규정)로 판단 → split_and_update.py 실행")
     print("=" * 60)
     
-    # 1. DOCX → MD 변환
-    temp_md_path = convert_docx_to_md(docx_path)
+    # 1. PDF/DOCX → MD 변환
+    temp_md_path = convert_to_md(input_path)
     
     # 2. split_and_update.py 실행
     split_update_script = project_root / 'scripts' / 'split_and_update.py'
@@ -150,32 +163,35 @@ def main():
     # 인자 확인
     if len(sys.argv) < 2:
         print("\n사용법:")
-        print(f"  python {sys.argv[0]} <DOCX_FILE_PATH>")
+        print(f"  python {sys.argv[0]} <FILE_PATH>")
         print("\n예시:")
+        print(f"  python {sys.argv[0]} regulations_source/new/규정집.pdf")
         print(f"  python {sys.argv[0]} regulations_source/new/규정집.docx")
-        print(f"  python {sys.argv[0]} regulations_source/new/교직원포상규정.docx")
+        print(f"  python {sys.argv[0]} regulations_source/new/교직원포상규정.pdf")
         sys.exit(1)
     
-    docx_path = sys.argv[1]
+    input_path = sys.argv[1]
     
     # 파일 존재 확인
-    if not os.path.exists(docx_path):
-        print(f"❌ 파일을 찾을 수 없습니다: {docx_path}")
+    if not os.path.exists(input_path):
+        print(f"❌ 파일을 찾을 수 없습니다: {input_path}")
         sys.exit(1)
     
-    # DOCX 파일 확인
-    if not docx_path.lower().endswith('.docx'):
-        print(f"❌ DOCX 파일이 아닙니다: {docx_path}")
+    # 파일 형식 확인
+    ext = os.path.splitext(input_path)[1].lower()
+    if ext not in ['.pdf', '.docx']:
+        print(f"❌ 지원하지 않는 파일 형식: {ext}")
+        print("   지원 형식: .pdf, .docx")
         sys.exit(1)
     
-    print(f"📁 입력 파일: {docx_path}")
+    print(f"📁 입력 파일: {input_path}")
     
     # regulations.json 로드
     regulations = load_regulations_db()
     print(f"📚 규정 데이터베이스: {len(regulations)}개 규정 로드됨")
     
-    # DOCX → MD 변환 (분석용)
-    temp_md_path = convert_docx_to_md(docx_path)
+    # PDF/DOCX → MD 변환 (분석용)
+    temp_md_path = convert_to_md(input_path)
     
     # 내용 분석
     regulation_count = analyze_md_content(temp_md_path, regulations)
@@ -189,15 +205,15 @@ def main():
     # 판단 및 처리
     if regulation_count >= 2:
         # 2개 이상 → 통합 문서
-        return process_multiple_regulations(docx_path)
+        return process_multiple_regulations(input_path)
     elif regulation_count == 1:
         # 1개 → 단일 규정
-        return process_single_regulation(docx_path)
+        return process_single_regulation(input_path)
     else:
         # 0개 → 매칭 실패, 단일 규정으로 간주 (smart_update가 제목 기반 매칭 시도)
         print("\n⚠️  regulations.json에서 매칭되는 제목을 찾지 못했습니다.")
         print("   단일 규정으로 간주하여 제목 기반 매칭을 시도합니다.")
-        return process_single_regulation(docx_path)
+        return process_single_regulation(input_path)
 
 if __name__ == '__main__':
     try:

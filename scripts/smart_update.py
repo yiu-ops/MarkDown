@@ -3,14 +3,15 @@
 스마트 규정 업데이트 스크립트
 
 기능:
-1. DOCX 파일을 MD로 자동 변환
+1. PDF/DOCX 파일을 MD로 자동 변환
 2. 규정 코드 또는 제목으로 자동 매칭
 3. 해당 규정 파일 자동 업데이트
 4. Git 커밋 메시지 자동 생성
 
 사용법:
+    python3 scripts/smart_update.py regulations_source/new/교직원포상규정.pdf
     python3 scripts/smart_update.py regulations_source/new/교직원포상규정.docx
-    python3 scripts/smart_update.py regulations_source/new/3-1-9_교직원포상규정.docx
+    python3 scripts/smart_update.py regulations_source/new/3-1-9_교직원포상규정.pdf
 """
 
 import os
@@ -42,12 +43,22 @@ def extract_code_from_filename(filename):
 
     return None
 
-def extract_title_from_docx(docx_path):
-    """DOCX 파일에서 제목 추출 (첫 번째 단락)"""
+def extract_title_from_file(file_path):
+    """PDF/DOCX 파일에서 제목 추출 (첫 번째 단락)"""
     try:
+        # 파일 형식 확인
+        ext = os.path.splitext(file_path)[1].lower()
+        
+        if ext == '.pdf':
+            input_format = 'pdf'
+        elif ext == '.docx':
+            input_format = 'docx'
+        else:
+            return None
+        
         # pandoc을 사용하여 제목 추출
         result = subprocess.run(
-            ['pandoc', '-f', 'docx', '-t', 'plain', docx_path],
+            ['pandoc', '-f', input_format, '-t', 'plain', file_path],
             capture_output=True,
             text=True,
             encoding='utf-8'
@@ -107,13 +118,24 @@ def find_regulation_by_title(regulations, title):
 
     return best_match, best_ratio
 
-def convert_docx_to_md(docx_path):
-    """DOCX를 MD로 변환"""
+def convert_to_md(input_path):
+    """PDF/DOCX를 MD로 변환"""
     temp_md = f"/tmp/regulation_temp_{os.getpid()}.md"
+    
+    # 파일 형식 확인
+    ext = os.path.splitext(input_path)[1].lower()
+    
+    if ext == '.pdf':
+        input_format = 'pdf'
+    elif ext == '.docx':
+        input_format = 'docx'
+    else:
+        print(f"❌ 지원하지 않는 파일 형식: {ext}")
+        return None
 
     try:
         result = subprocess.run(
-            ['pandoc', '-f', 'docx', '-t', 'markdown', docx_path, '-o', temp_md],
+            ['pandoc', '-f', input_format, '-t', 'markdown', input_path, '-o', temp_md],
             capture_output=True,
             text=True
         )
@@ -181,22 +203,30 @@ def update_regulation_file(target_path, source_md):
 
 def main():
     if len(sys.argv) < 2:
-        print("사용법: python3 scripts/smart_update.py <docx파일>")
+        print("사용법: python3 scripts/smart_update.py <파일>")
         print("\n예시:")
+        print("  python3 scripts/smart_update.py regulations_source/new/교직원포상규정.pdf")
         print("  python3 scripts/smart_update.py regulations_source/new/교직원포상규정.docx")
-        print("  python3 scripts/smart_update.py regulations_source/new/3-1-9_교직원포상규정.docx")
+        print("  python3 scripts/smart_update.py regulations_source/new/3-1-9_교직원포상규정.pdf")
         sys.exit(1)
 
-    docx_file = sys.argv[1]
+    input_file = sys.argv[1]
 
-    if not os.path.exists(docx_file):
-        print(f"❌ 파일을 찾을 수 없습니다: {docx_file}")
+    if not os.path.exists(input_file):
+        print(f"❌ 파일을 찾을 수 없습니다: {input_file}")
+        sys.exit(1)
+    
+    # 파일 형식 확인
+    ext = os.path.splitext(input_file)[1].lower()
+    if ext not in ['.pdf', '.docx']:
+        print(f"❌ 지원하지 않는 파일 형식: {ext}")
+        print("   지원 형식: .pdf, .docx")
         sys.exit(1)
 
     print("=" * 80)
     print("🤖 스마트 규정 업데이트 시작")
     print("=" * 80)
-    print(f"📄 원본 파일: {docx_file}")
+    print(f"📄 원본 파일: {input_file}")
     print()
 
     # 1. regulations.json 로드
@@ -205,7 +235,7 @@ def main():
     print()
 
     # 2. 규정 코드 추출 시도
-    filename = os.path.basename(docx_file)
+    filename = os.path.basename(input_file)
     code = extract_code_from_filename(filename)
 
     matched_regulation = None
@@ -222,8 +252,8 @@ def main():
 
     # 3. 코드로 못 찾으면 제목으로 검색
     if not matched_regulation:
-        print("🔍 DOCX 파일에서 제목 추출 중...")
-        title = extract_title_from_docx(docx_file)
+        print("🔍 파일에서 제목 추출 중...")
+        title = extract_title_from_file(input_file)
 
         if title:
             print(f"   제목: {title}")
@@ -260,8 +290,8 @@ def main():
             sys.exit(0)
 
     # 4. DOCX → MD 변환
-    print("🔄 DOCX → MD 변환 중...")
-    temp_md = convert_docx_to_md(docx_file)
+    print("🔄 PDF/DOCX → MD 변환 중...")
+    temp_md = convert_to_md(input_file)
 
     if not temp_md:
         print("❌ 변환 실패")
@@ -303,8 +333,8 @@ def main():
     history_dir = f"regulations_source/history/{year}"
     os.makedirs(history_dir, exist_ok=True)
 
-    history_path = os.path.join(history_dir, os.path.basename(docx_file))
-    subprocess.run(['mv', docx_file, history_path])
+    history_path = os.path.join(history_dir, os.path.basename(input_file))
+    subprocess.run(['mv', input_file, history_path])
     print(f"📦 원본 파일 아카이브: {history_path}")
     print()
     print("✅ 모든 작업 완료!")

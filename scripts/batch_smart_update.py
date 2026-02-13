@@ -2,7 +2,7 @@
 """
 일괄 스마트 업데이트 스크립트
 
-regulations_source/new/ 폴더의 모든 DOCX 파일을 자동 처리
+regulations_source/new/ 폴더의 모든 PDF/DOCX 파일을 자동 처리
 
 사용법:
     python3 scripts/batch_smart_update.py
@@ -14,14 +14,15 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
-def find_docx_files(directory):
-    """특정 디렉토리에서 모든 DOCX 파일 찾기"""
-    docx_files = []
+def find_regulation_files(directory):
+    """특정 디렉토리에서 모든 PDF/DOCX 파일 찾기"""
+    files = []
     if os.path.exists(directory):
         for file in os.listdir(directory):
-            if file.endswith('.docx') and not file.startswith('~'):  # 임시 파일 제외
-                docx_files.append(os.path.join(directory, file))
-    return sorted(docx_files)
+            # PDF 또는 DOCX 파일만, 임시 파일 제외
+            if (file.endswith('.pdf') or file.endswith('.docx')) and not file.startswith('~'):
+                files.append(os.path.join(directory, file))
+    return sorted(files)
 
 def main():
     new_dir = "regulations_source/new"
@@ -34,23 +35,23 @@ def main():
 
     if not os.path.exists(new_dir):
         print(f"❌ {new_dir} 폴더가 없습니다.")
-        print(f"💡 mkdir -p {new_dir} 명령으로 폴더를 생성하세요.")
+        print(f"❌ {new_dir} 폴더를 생성하세요.")
         sys.exit(1)
 
-    # DOCX 파일 검색
-    docx_files = find_docx_files(new_dir)
+    # PDF/DOCX 파일 검색
+    files = find_regulation_files(new_dir)
 
-    if not docx_files:
-        print(f"❌ {new_dir} 폴더에 처리할 DOCX 파일이 없습니다.")
+    if not files:
+        print(f"❌ {new_dir} 폴더에 처리할 PDF/DOCX 파일이 없습니다.")
         print()
         print("💡 사용 방법:")
-        print(f"   1. 개정된 규정 파일(DOCX)을 {new_dir}/ 폴더에 저장")
-        print("   2. (선택) 파일명에 규정 코드 포함: <코드>_제목.docx")
+        print(f"   1. 개정된 규정 파일(PDF 또는 DOC X)을 {new_dir}/ 폴더에 저장")
+        print("   2. (선택) 파일명에 규정 코드 포함: <코드>_제목.pdf")
         print("   3. 이 스크립트 실행")
         sys.exit(0)
 
-    print(f"발견한 파일: {len(docx_files)}개")
-    for f in docx_files:
+    print(f"발견한 파일: {len(files)}개")
+    for f in files:
         print(f"  - {os.path.basename(f)}")
     print()
 
@@ -59,14 +60,14 @@ def main():
     failed_count = 0
     failed_files = []
 
-    for i, docx_file in enumerate(docx_files, 1):
+    for i, file in enumerate(files, 1):
         print("=" * 80)
-        print(f"[{i}/{len(docx_files)}] {os.path.basename(docx_file)}")
+        print(f"[{i}/{len(files)}] {os.path.basename(file)}")
         print("=" * 80)
 
         try:
             result = subprocess.run(
-                ['python3', 'scripts/smart_update.py', docx_file],
+                ['python3', 'scripts/smart_update.py', file],
                 capture_output=False,
                 text=True
             )
@@ -76,11 +77,11 @@ def main():
                 print(f"✅ 성공")
             else:
                 failed_count += 1
-                failed_files.append(os.path.basename(docx_file))
+                failed_files.append(os.path.basename(file))
                 print(f"❌ 실패")
         except Exception as e:
             failed_count += 1
-            failed_files.append(os.path.basename(docx_file))
+            failed_files.append(os.path.basename(file))
             print(f"❌ 오류: {e}")
 
         print()
