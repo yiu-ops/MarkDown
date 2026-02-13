@@ -53,49 +53,28 @@ def convert_to_md(input_path):
         if ext == '.pdf':
             print(f"📄 PDF → DOCX → Markdown 변환 중 (더 나은 품질): {input_path}")
             
-            # 1단계: PDF → DOCX (LibreOffice 사용)
-            temp_dir = tempfile.mkdtemp()
-            temp_files_to_cleanup.append(temp_dir)
+            # 1단계: PDF → DOCX (pdf2docx 패키지 사용)
+            temp_docx = tempfile.NamedTemporaryFile(mode='w', suffix='.docx', 
+                                                     delete=False, encoding='utf-8')
+            temp_docx_path = temp_docx.name
+            temp_docx.close()
+            temp_files_to_cleanup.append(temp_docx_path)
             
             print("   1/2: PDF → DOCX 변환...")
-            result = subprocess.run(
-                ['libreoffice', '--headless', '--convert-to', 'docx', 
-                 '--outdir', temp_dir, input_path],
-                capture_output=True,
-                text=True,
-                timeout=300
-            )
-            
-            if result.returncode != 0:
-                print(f"❌ PDF → DOCX 변환 실패: {result.stderr}")
+            try:
+                from pdf2docx import Converter
+                cv = Converter(input_path)
+                cv.convert(temp_docx_path)
+                cv.close()
+                print("   ✅ PDF → DOCX 변환 완료")
+            except Exception as e:
+                print(f"❌ PDF → DOCX 변환 실패: {e}")
                 for f in temp_files_to_cleanup:
                     try:
-                        if os.path.isdir(f):
-                            import shutil
-                            shutil.rmtree(f)
-                        else:
-                            os.unlink(f)
+                        os.unlink(f)
                     except:
                         pass
                 sys.exit(1)
-            
-            # 생성된 DOCX 파일 찾기
-            import glob
-            docx_files = glob.glob(os.path.join(temp_dir, '*.docx'))
-            if not docx_files:
-                print(f"❌ PDF → DOCX 변환 후 DOCX 파일을 찾을 수 없습니다")
-                for f in temp_files_to_cleanup:
-                    try:
-                        if os.path.isdir(f):
-                            import shutil
-                            shutil.rmtree(f)
-                        else:
-                            os.unlink(f)
-                    except:
-                        pass
-                sys.exit(1)
-            
-            temp_docx_path = docx_files[0]
             
             # 2단계: DOCX → Markdown
             input_file = temp_docx_path

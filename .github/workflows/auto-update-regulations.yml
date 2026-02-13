@@ -35,10 +35,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Pandoc 설치
+      - name: 의존성 설치
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc libreoffice
+          sudo apt-get install -y pandoc
+          pip install pdf2docx
 
       - name: regulations_source/new 폴더 확인
         id: check_files
