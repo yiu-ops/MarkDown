@@ -13,10 +13,10 @@ on:
   schedule:
     - cron: '0 0 * * *'  # UTC 0시 = KST 9시
 
-  # regulations_source에 .docx 파일이 직접 푸시되면 실행
+  # regulations_source/new에 .docx 파일이 푸시되면 실행
   push:
     paths:
-      - '.github/regulations_upload/*.docx'
+      - 'regulations_source/new/*.docx'
 
 jobs:
   auto-update:
@@ -54,74 +54,48 @@ jobs:
       - name: regulations.json 확인 및 생성
         run: |
           if [ ! -f "regulations.json" ]; then
-            echo "regulations.json이 없습니다. 생성 중..."
-            python3 << 'EOF'
-          import os
-          import json
-          import re
-
-          def extract_title_from_md(filepath):
-              try:
-                  with open(filepath, 'r', encoding='utf-8') as f:
-                      first_line = f.readline().strip()
-                      title = re.sub(r'^#+\s*', '', first_line)
-                      return title
-              except:
-                  return None
-
-          def normalize_title(title):
-              normalized = re.sub(r'[\s\.\·\-]', '', title)
-              return normalized.lower()
-
-          regulations = []
-          for root, dirs, files in os.walk('regulations'):
-              for file in files:
-                  if file.endswith('.md'):
-                      filepath = os.path.join(root, file)
-                      code = file.replace('.md', '')
-                      title = extract_title_from_md(filepath)
-
-                      if title:
-                          category = root.replace('regulations/', '')
-                          regulation = {
-                              "code": code,
-                              "title": title,
-                              "title_normalized": normalize_title(title),
-                              "category": category,
-                              "path": filepath,
-                              "filename": file
-                          }
-                          regulations.append(regulation)
-
-          output = {
-              "version": "1.0",
-              "last_updated": "$(date +%Y-%m-%d)",
-              "total_regulations": len(regulations),
-              "regulations": sorted(regulations, key=lambda x: x['code'])
-          }
-
-          with open('regulations.json', 'w', encoding='utf-8') as f:
-              json.dump(output, f, ensure_ascii=False, indent=2)
-
-          print(f"regulations.json 생성 완료: {len(regulations)}개 규정")
-          EOF
+            echo "⚠️  regulations.json이 없습니다. 생성 중..."
+            python3 scripts/regenerate_regulations_db.py
+          else
+            echo "✅ regulations.json이 이미 존재합니다."
           fi
 
-      - name: 규정 일괄 업데이트
+      - name: 규정 파일 처리
         if: steps.check_files.outputs.has_files == 'true'
         run: |
-          python3 scripts/batch_smart_update.py
+          echo "📂 regulations_source/new/ 폴더의 DOCX 파일 처리 중..."
+          for docx_file in regulations_source/new/*.docx; do
+            if [ -f "$docx_file" ]; then
+              echo ""
+              echo "=========================================="
+              echo "처리 중: $docx_file"
+              echo "=========================================="
+              python3 scripts/process_regulation.py "$docx_file"
+            fi
+          done
+
+      - name: regulations.json 자동 재생성
+        if: steps.check_files.outputs.has_files == 'true'
+        run: |
+          echo "🔄 regulations.json 재생성 중..."
+          python3 scripts/regenerate_regulations_db.py
+
+      - name: RAG 폴더 동기화
+        if: steps.check_files.outputs.has_files == 'true'
+        run: |
+          echo "🔄 RAG 폴더 동기화 중..."
+          python3 scripts/sync_rag_folder.py
 
       - name: 변경사항 확인
         id: check_changes
         run: |
-          if [ -n "$(git status --porcelain regulations/)" ]; then
+          if [ -n "$(git status --porcelain regulations/ regulations.json regulations_for_rag/ reports/)" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "✅ 변경된 규정이 있습니다."
-            git status --short regulations/
+            echo "✅ 변경된 파일이 있습니다."
+            git status --short regulations/ regulations.json regulations_for_rag/ reports/
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ 변경된 규정이 없습니다."
+            echo "ℹ️  변경사항이 없습니다."
           fi
 
       - name: Git 설정
@@ -133,12 +107,11 @@ jobs:
       - name: 변경사항 커밋 및 푸시
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
-          git add regulations/
-          git add regulations.json 2>/dev/null || true
+          git add regulations/ regulations.json regulations_for_rag/ reports/
 
           COMMIT_MSG="${{ github.event.inputs.commit_message }}"
           if [ -z "$COMMIT_MSG" ]; then
-            COMMIT_MSG="자동 규정 업데이트 - $(date +%Y-%m-%d)"
+            COMMIT_MSG="자동 규정 업데이트 (통합 시스템) - $(date +%Y-%m-%d)"
           fi
 
           git commit -m "$COMMIT_MSG"

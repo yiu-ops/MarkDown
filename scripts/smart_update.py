@@ -127,6 +127,36 @@ def convert_docx_to_md(docx_path):
         print(f"❌ 변환 중 오류: {e}")
         return None
 
+def cleanup_old_backups(target_path, days=7):
+    """오래된 백업 파일 정리 (기본 7일)"""
+    import time
+    import glob
+    
+    # 백업 파일 패턴
+    backup_pattern = f"{target_path}.backup.*"
+    backup_files = glob.glob(backup_pattern)
+    
+    if not backup_files:
+        return
+    
+    current_time = time.time()
+    deleted_count = 0
+    
+    for backup_file in backup_files:
+        try:
+            # 파일 수정 시간 확인
+            file_age_days = (current_time - os.path.getmtime(backup_file)) / 86400
+            
+            if file_age_days > days:
+                os.remove(backup_file)
+                deleted_count += 1
+        except Exception as e:
+            # 삭제 실패해도 계속 진행
+            pass
+    
+    if deleted_count > 0:
+        print(f"🗑️  오래된 백업 파일 {deleted_count}개 정리됨 ({days}일 이상)")
+
 def update_regulation_file(target_path, source_md):
     """규정 파일 업데이트"""
     # 백업 생성
@@ -140,6 +170,9 @@ def update_regulation_file(target_path, source_md):
 
         # 파일 업데이트
         subprocess.run(['cp', source_md, target_path], check=True)
+        
+        # 오래된 백업 정리
+        cleanup_old_backups(target_path, days=7)
 
         return True, backup_path
     except Exception as e:
