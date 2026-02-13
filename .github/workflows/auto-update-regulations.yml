@@ -43,13 +43,15 @@ jobs:
       - name: regulations_source/new 폴더 확인
         id: check_files
         run: |
-          if [ -d "regulations_source/new" ] && { ls regulations_source/new/*.pdf regulations_source/new/*.docx 1>/dev/null 2>&1; }; then
+          if find regulations_source/new -maxdepth 1 \( -name "*.pdf" -o -name "*.docx" \) 2>/dev/null | grep -q .; then
             echo "has_files=true" >> $GITHUB_OUTPUT
             echo "✅ 처리할 PDF/DOCX 파일이 있습니다."
             ls -la regulations_source/new/
           else
             echo "has_files=false" >> $GITHUB_OUTPUT
             echo "ℹ️ 처리할 PDF/DOCX 파일이 없습니다."
+            echo "📂 regulations_source/new/ 내용:"
+            ls -la regulations_source/new/ 2>/dev/null || echo "폴더 없음"
           fi
 
       - name: regulations.json 확인 및 생성
