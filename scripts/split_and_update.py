@@ -33,48 +33,75 @@ def normalize_line(line):
     """Normalize line for comparison (ignore whitespace differences)."""
     return line.strip()
 
+def normalize_title(title):
+    """제목 정규화 (공백, 특수문자 제거)"""
+    return re.sub(r'[\s\.\·\-\(\)\[\]\:：]', '', title).lower()
+
 def split_markdown_content(content, regulations):
     """
     Split the monolithic markdown content into individual regulations.
     Returns a dictionary {regulation_code: content_lines}
+    
+    PDF 변환 후에도 규정을 찾을 수 있도록 여러 매칭 방법 사용:
+    1. 정확한 제목 매칭
+    2. 정규화된 제목 매칭 (공백/특수문자 무시)
+    3. 라인 내 제목 포함 여부 (짧은 라인만)
     """
     lines = content.splitlines()
     split_result = {}
     current_code = None
     current_content = []
     
-    # Create a mapping of title -> regulation info for fast lookup
-    # We use normalized titles (strip spaces) for better matching
-    title_map = {}
+    # Create a mapping for fast lookup
+    # exact_title -> reg, normalized_title -> reg
+    exact_map = {}
+    normalized_map = {}
     for reg in regulations:
-        # Map exact title
-        title_map[reg['title'].strip()] = reg
-        # Map normalized title (remove spaces)
-        title_map[reg['title'].replace(' ', '')] = reg
+        exact_map[reg['title'].strip()] = reg
+        exact_map[reg['title'].replace(' ', '')] = reg
+        normalized_map[normalize_title(reg['title'])] = reg
+
+    def find_matching_regulation(line):
+        """라인에서 규정 제목을 찾는 함수"""
+        stripped = line.strip()
+        
+        # Markdown 헤딩 처리 (# 제목)
+        if stripped.startswith('#'):
+            stripped = re.sub(r'^#+\s*', '', stripped)
+        
+        # 방법 1: 정확한 매칭
+        if stripped in exact_map:
+            return exact_map[stripped]
+        if stripped.replace(' ', '') in exact_map:
+            return exact_map[stripped.replace(' ', '')]
+        
+        # 방법 2: 정규화된 매칭
+        normalized = normalize_title(stripped)
+        if normalized in normalized_map:
+            return normalized_map[normalized]
+        
+        # 방법 3: 짧은 라인에서 부분 매칭 (제목이 포함된 경우)
+        if len(stripped) < 80:
+            for norm_title, reg in normalized_map.items():
+                if norm_title == normalized:
+                    return reg
+                # 라인이 규정 제목으로 끝나는 경우
+                if normalized.endswith(norm_title) and len(norm_title) > 4:
+                    return reg
+        
+        return None
 
     for line in lines:
-        stripped_line = line.strip()
+        matched_reg = find_matching_regulation(line)
         
-        # Check if this line is a start of a new regulation
-        # We check both exact match and space-removed match
-        is_new_reg = False
-        matched_reg = None
-        
-        if stripped_line in title_map:
-            matched_reg = title_map[stripped_line]
-            is_new_reg = True
-        elif stripped_line.replace(' ', '') in title_map:
-            matched_reg = title_map[stripped_line.replace(' ', '')]
-            is_new_reg = True
-            
-        if is_new_reg:
+        if matched_reg:
             # Save previous regulation if exists
             if current_code:
                 split_result[current_code] = current_content
             
             # Start new regulation
             current_code = matched_reg['code']
-            current_content = [line] # Include the title line
+            current_content = [line]  # Include the title line
             print(f"Found regulation start: {matched_reg['title']} ({current_code})")
         else:
             # Append to current regulation

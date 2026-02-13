@@ -138,28 +138,53 @@ def analyze_md_content(md_path, regulations):
     with open(md_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # 제목 매핑 생성
-    title_set = set()
+    # 제목 매핑 생성 (정규화된 제목 -> 원본 제목)
+    title_map = {}
     for reg in regulations:
-        title_set.add(normalize_title(reg['title']))
+        normalized = normalize_title(reg['title'])
+        title_map[normalized] = reg['title']
     
-    # 헤딩(제목) 찾기
     lines = content.splitlines()
-    found_titles = []
+    found_titles = set()  # 중복 방지
     
+    # 방법 1: Markdown 헤딩에서 찾기 (# 제목)
     for line in lines:
-        # Markdown 헤딩 찾기 (# 제목)
         if line.strip().startswith('#'):
             title = re.sub(r'^#+\s*', '', line.strip())
             normalized = normalize_title(title)
-            
-            # regulations.json에 있는 제목인지 확인
-            if normalized in title_set:
-                found_titles.append(title)
+            if normalized in title_map:
+                found_titles.add(title_map[normalized])
+    
+    # 방법 2: 일반 텍스트에서 규정 제목 매칭 (PDF 변환 후 헤딩이 없는 경우)
+    if len(found_titles) < 3:
+        print("   📝 헤딩에서 제목을 찾지 못해 전체 텍스트 검색 중...")
+        for line in lines:
+            line_normalized = normalize_title(line)
+            # 라인이 규정 제목과 정확히 일치하거나 매우 유사한 경우
+            for norm_title, orig_title in title_map.items():
+                # 정확히 일치하거나 라인이 제목으로 끝나는 경우
+                if norm_title == line_normalized:
+                    found_titles.add(orig_title)
+                # 라인 내에 제목이 포함된 경우 (짧은 라인만)
+                elif len(line.strip()) < 80 and norm_title in line_normalized:
+                    found_titles.add(orig_title)
+    
+    # 방법 3: 규정/규칙 패턴으로 추가 탐지
+    if len(found_titles) < 3:
+        print("   📝 규정 패턴 기반 검색 중...")
+        # 일반적인 규정 패턴: "XXX규정", "XXX규칙", "XXX지침", "XXX정관", "XXX내규"
+        reg_pattern = re.compile(r'^[\s\d\.\-]*(.{2,30}(?:규정|규칙|지침|정관|내규|행동강령))[\s]*$')
+        for line in lines:
+            match = reg_pattern.match(line.strip())
+            if match:
+                potential_title = match.group(1).strip()
+                norm_potential = normalize_title(potential_title)
+                if norm_potential in title_map:
+                    found_titles.add(title_map[norm_potential])
     
     print(f"📊 발견된 규정 제목: {len(found_titles)}개")
     if found_titles:
-        for title in found_titles[:5]:  # 최대 5개만 표시
+        for title in list(found_titles)[:5]:  # 최대 5개만 표시
             print(f"   - {title}")
         if len(found_titles) > 5:
             print(f"   ... 외 {len(found_titles) - 5}개")
