@@ -17,7 +17,11 @@ HWP 파일 기반의 규정집을 GitHub에서 체계적으로 관리하는 자�
 ### 1. 규정 파일 업로드
 
 ```bash
-# DOCX 파일을 regulations_source/new/ 폴더에 저장
+# PDF 권장! (HWP → PDF로 저장)
+# PDF는 DOCX를 거쳐 Markdown으로 변환되어 구조가 더 잘 보존됩니다
+cp 규정집.pdf regulations_source/new/
+
+# DOCX도 여전히 지원
 cp 규정집.docx regulations_source/new/
 
 # Git 커밋 및 푸시
@@ -27,8 +31,9 @@ git push
 ```
 
 **끝!** GitHub Actions가 자동으로:
+- PDF의 경우: **PDF → DOCX → Markdown** (더 나은 품질!)
+- DOCX의 경우: **DOCX → Markdown**
 - 단일 규정인지 통합 문서인지 판단
-- DOCX → Markdown 변환
 - 해당 규정 파일 업데이트
 - 백업 생성 및 오래된 백업 정리
 - regulations.json 자동 재생성
@@ -113,7 +118,22 @@ MarkDown/
 
 ## ❓ 자주 묻는 질문
 
+### Q: PDF와 DOCX 중 어떤 것을 사용해야 하나요?
+
 ### Q: 단일 규정과 통합 문서를 어떻게 구분하나요?
+
+A: **PDF를 권장합니다!** 
+- PDF → DOCX → Markdown 경로로 변환되어 구조가 더 잘 보존됩니다
+- HWP 파일을 한컴오피스에서 PDF로 직접 저장하세요
+- DOCX도 여전히 지원하지만, PDF가 표와 서식을 더 잘 유지합니다
+
+### Q: HWP 파일을 어떻게 변환하나요?
+
+A: **한컴오피스에서 PDF로 저장하세요:**
+1. HWP 파일 열기
+2. 파일 → 다른 이름으로 저장 → PDF
+3. "텍스트 선택 가능" 옵션 활성화
+4. PDF 파일을 regulations_source/new/에 업로드
 
 A: **자동으로 판단합니다!** `process_regulation.py` 스크립트가 파일을 분석하여:
 - 2개 이상의 규정 제목 발견 → 통합 문서로 처리
@@ -134,9 +154,7 @@ A: AI 챗봇이나 검색 시스템에서 사용하기 쉽도록 규정 파일�
 
 ---
 
-## 🔧 기술 스택
-
-- **Pandoc**: DOCX → Markdown 변환
+## 🔧 기술 스택PDF → DOCX → Markdown 변환 (최적 품질)
 - **Python 3**: 자동화 스크립트
 - **GitHub Actions**: CI/CD 완전 자동화
 - **Git**: 버전 관리
@@ -144,6 +162,13 @@ A: AI 챗봇이나 검색 시스템에서 사용하기 쉽도록 규정 파일�
 ---
 
 ## 📝 변경 이력
+
+### 2026-02-13 (v2)
+- ✨ **PDF → DOCX → Markdown 2단계 변환** (품질 개선!)
+- ✨ PDF 직접 지원 (HWPX 구조 손실 문제 해결)
+- 📚 PDF 사용 권장 (표와 서식 더 잘 보존)
+
+### 2026-02-13 (v1)
 
 ### 2026-02-13
 - ✨ 통합 처리 스크립트 추가

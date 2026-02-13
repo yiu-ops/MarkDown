@@ -119,34 +119,66 @@ def find_regulation_by_title(regulations, title):
     return best_match, best_ratio
 
 def convert_to_md(input_path):
-    """PDF/DOCX를 MD로 변환"""
+    """PDF/DOCX를 MD로 변환 (PDF는 DOCX를 거쳐 변환)"""
     temp_md = f"/tmp/regulation_temp_{os.getpid()}.md"
+    temp_docx = None
     
     # 파일 형식 확인
     ext = os.path.splitext(input_path)[1].lower()
     
-    if ext == '.pdf':
-        input_format = 'pdf'
-    elif ext == '.docx':
-        input_format = 'docx'
-    else:
-        print(f"❌ 지원하지 않는 파일 형식: {ext}")
-        return None
-
     try:
+        if ext == '.pdf':
+            # PDF → DOCX → Markdown (더 나은 품질)
+            temp_docx = f"/tmp/regulation_temp_{os.getpid()}.docx"
+            
+            # 1단계: PDF → DOCX
+            result = subprocess.run(
+                ['pandoc', '-f', 'pdf', '-t', 'docx', input_path, '-o', temp_docx],
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode != 0:
+                print(f"❌ PDF → DOCX 변환 실패: {result.stderr}")
+                return None
+            
+            # 2단계: DOCX → Markdown
+            input_file = temp_docx
+            input_format = 'docx'
+            
+        elif ext == '.docx':
+            input_file = input_path
+            input_format = 'docx'
+        else:
+            print(f"❌ 지원하지 않는 파일 형식: {ext}")
+            return None
+
         result = subprocess.run(
-            ['pandoc', '-f', input_format, '-t', 'markdown', input_path, '-o', temp_md],
+            ['pandoc', '-f', input_format, '-t', 'markdown', input_file, '-o', temp_md],
             capture_output=True,
             text=True
         )
 
         if result.returncode == 0:
+            # 중간 파일 정리
+            if temp_docx and os.path.exists(temp_docx):
+                try:
+                    os.remove(temp_docx)
+                except:
+                    pass
             return temp_md
         else:
             print(f"❌ Pandoc 변환 실패: {result.stderr}")
             return None
+            
     except Exception as e:
         print(f"❌ 변환 중 오류: {e}")
+        # 중간 파일 정리
+        if temp_docx and os.path.exists(temp_docx):
+            try:
+                os.remove(temp_docx)
+            except:
+                pass
         return None
 
 def cleanup_old_backups(target_path, days=7):

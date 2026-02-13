@@ -46,26 +46,59 @@ def convert_to_md(input_path):
     # 파일 확장자 확인
     ext = os.path.splitext(input_path)[1].lower()
     
-    if ext == '.pdf':
-        print(f"📄 PDF를 Markdown으로 변환 중: {input_path}")
-        input_format = 'pdf'
-    elif ext == '.docx':
-        print(f"📄 DOCX를 Markdown으로 변환 중: {input_path}")
-        input_format = 'docx'
-    else:
-        print(f"❌ 지원하지 않는 파일 형식: {ext}")
-        print("   지원 형식: .pdf, .docx")
-        sys.exit(1)
-    
-    # 임시 MD 파일 생성
-    temp_md = tempfile.NamedTemporaryFile(mode='w', suffix='.md', 
-                                           delete=False, encoding='utf-8')
-    temp_md_path = temp_md.name
-    temp_md.close()
+    temp_files_to_cleanup = []
     
     try:
+        # PDF의 경우 DOCX를 중간 단계로 사용
+        if ext == '.pdf':
+            print(f"📄 PDF → DOCX → Markdown 변환 중 (더 나은 품질): {input_path}")
+            
+            # 1단계: PDF → DOCX
+            temp_docx = tempfile.NamedTemporaryFile(mode='w', suffix='.docx', 
+                                                     delete=False, encoding='utf-8')
+            temp_docx_path = temp_docx.name
+            temp_docx.close()
+            temp_files_to_cleanup.append(temp_docx_path)
+            
+            print("   1/2: PDF → DOCX 변환...")
+            result = subprocess.run(
+                ['pandoc', '-f', 'pdf', '-t', 'docx', input_path, '-o', temp_docx_path],
+                capture_output=True,
+                text=True,
+                encoding='utf-8'
+            )
+            
+            if result.returncode != 0:
+                print(f"❌ PDF → DOCX 변환 실패: {result.stderr}")
+                for f in temp_files_to_cleanup:
+                    try:
+                        os.unlink(f)
+                    except:
+                        pass
+                sys.exit(1)
+            
+            # 2단계: DOCX → Markdown
+            input_file = temp_docx_path
+            input_format = 'docx'
+            print("   2/2: DOCX → Markdown 변환...")
+            
+        elif ext == '.docx':
+            print(f"📄 DOCX를 Markdown으로 변환 중: {input_path}")
+            input_file = input_path
+            input_format = 'docx'
+        else:
+            print(f"❌ 지원하지 않는 파일 형식: {ext}")
+            print("   지원 형식: .pdf, .docx")
+            sys.exit(1)
+        
+        # 임시 MD 파일 생성
+        temp_md = tempfile.NamedTemporaryFile(mode='w', suffix='.md', 
+                                               delete=False, encoding='utf-8')
+        temp_md_path = temp_md.name
+        temp_md.close()
+        
         result = subprocess.run(
-            ['pandoc', '-f', input_format, '-t', 'markdown', input_path, '-o', temp_md_path],
+            ['pandoc', '-f', input_format, '-t', 'markdown', input_file, '-o', temp_md_path],
             capture_output=True,
             text=True,
             encoding='utf-8'
@@ -73,12 +106,30 @@ def convert_to_md(input_path):
         
         if result.returncode != 0:
             print(f"❌ Pandoc 변환 실패: {result.stderr}")
+            for f in temp_files_to_cleanup:
+                try:
+                    os.unlink(f)
+                except:
+                    pass
             sys.exit(1)
+        
+        # 중간 파일 정리
+        for f in temp_files_to_cleanup:
+            try:
+                os.unlink(f)
+            except:
+                pass
             
         return temp_md_path
+        
     except FileNotFoundError:
         print("❌ Pandoc이 설치되어 있지 않습니다.")
         print("   설치: https://pandoc.org/installing.html")
+        for f in temp_files_to_cleanup:
+            try:
+                os.unlink(f)
+            except:
+                pass
         sys.exit(1)
 
 def analyze_md_content(md_path, regulations):
