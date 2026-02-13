@@ -1,7 +1,7 @@
 site_name: 용인대학교 규정집
-site_url: https://Parkseihuan.github.io/MarkDown/
-repo_url: https://github.com/Parkseihuan/MarkDown
-repo_name: Parkseihuan/MarkDown
+site_url: https://yiu-ops.github.io/MarkDown/
+repo_url: https://github.com/yiu-ops/MarkDown
+repo_name: yiu-ops/MarkDown
 
 theme:
   name: material

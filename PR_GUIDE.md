@@ -11,7 +11,7 @@
 
 ### 1단계: GitHub 저장소 접속
 ```
-https://github.com/Parkseihuan/MarkDown
+https://github.com/yiu-ops/MarkDown
 ```
 
 ### 2단계: PR 생성
