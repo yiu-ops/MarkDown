@@ -67,7 +67,7 @@ MarkDown/
 │       └── 3-교무행정/
 │
 ├── regulations_source/       # 원본 파일
-│   └── new/                 # 📥 새 DOCX 업로드 여기!
+│   └── new/                 # 📥 새 PDF/DOCX 업로드 여기!
 │
 ├── regulations_for_rag/      # 🤖 RAG용 한글 파일명
 │
