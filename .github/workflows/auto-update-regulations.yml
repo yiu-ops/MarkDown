@@ -13,9 +13,10 @@ on:
   schedule:
     - cron: '0 0 * * *'  # UTC 0시 = KST 9시
 
-  # regulations_source/new에 .docx 파일이 푸시되면 실행
+  # regulations_source/new에 PDF/DOCX 파일이 푸시되면 실행
   push:
     paths:
+      - 'regulations_source/new/*.pdf'
       - 'regulations_source/new/*.docx'
 
 jobs:
@@ -42,13 +43,13 @@ jobs:
       - name: regulations_source/new 폴더 확인
         id: check_files
         run: |
-          if [ -d "regulations_source/new" ] && [ "$(ls -A regulations_source/new/*.docx 2>/dev/null)" ]; then
+          if [ -d "regulations_source/new" ] && { ls regulations_source/new/*.pdf regulations_source/new/*.docx 1>/dev/null 2>&1; }; then
             echo "has_files=true" >> $GITHUB_OUTPUT
-            echo "✅ 처리할 DOCX 파일이 있습니다."
+            echo "✅ 처리할 PDF/DOCX 파일이 있습니다."
             ls -la regulations_source/new/
           else
             echo "has_files=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ 처리할 DOCX 파일이 없습니다."
+            echo "ℹ️ 처리할 PDF/DOCX 파일이 없습니다."
           fi
 
       - name: regulations.json 확인 및 생성
@@ -63,14 +64,14 @@ jobs:
       - name: 규정 파일 처리
         if: steps.check_files.outputs.has_files == 'true'
         run: |
-          echo "📂 regulations_source/new/ 폴더의 DOCX 파일 처리 중..."
-          for docx_file in regulations_source/new/*.docx; do
-            if [ -f "$docx_file" ]; then
+          echo "📂 regulations_source/new/ 폴더의 PDF/DOCX 파일 처리 중..."
+          for file in regulations_source/new/*.pdf regulations_source/new/*.docx; do
+            if [ -f "$file" ]; then
               echo ""
               echo "=========================================="
-              echo "처리 중: $docx_file"
+              echo "처리 중: $file"
               echo "=========================================="
-              python3 scripts/process_regulation.py "$docx_file"
+              python3 scripts/process_regulation.py "$file"
             fi
           done
 
